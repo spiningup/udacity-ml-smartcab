@@ -118,7 +118,12 @@ class LearningAgent(Agent):
         if random.random() <= self.epsilon:
             action = random.choice([None, 'forward', 'left', 'right'])
         else:
-            action = max(self.Q[state], key=self.Q[state].get)
+            # get maximum Q value given state
+            maxQ = max(self.Q[state].values())
+            # get the list of actions corresponding to the maximum Q value given state
+            possible_actions = [key for key in self.Q[state].keys() if self.Q[state][key] == maxQ]
+            # random choose from these actions
+            action = random.choice(possible_actions)
 
         return action
 
@@ -133,8 +138,7 @@ class LearningAgent(Agent):
         ###########
         # When learning, implement the value iteration update rule
         #   Use only the learning rate 'alpha' (do not use the discount factor 'gamma')
-        self.Q[state][action] = (1.0 - self.alpha) * self.Q[state][action] + self.alpha * (
-            reward + self.get_maxQ(state) )
+        self.Q[state][action] = (1.0 - self.alpha) * self.Q[state][action] + self.alpha * reward
 
         return
 
@@ -171,7 +175,7 @@ def run():
     #   learning   - set to True to force the driving agent to use Q-learning
     #    * epsilon - continuous value for the exploration factor, default is 1
     #    * alpha   - continuous value for the learning rate, default is 0.5
-    agent = env.create_agent(LearningAgent, learning=False, epsilon=1.0, alpha=0.5)
+    agent = env.create_agent(LearningAgent, learning=True, epsilon=1.0, alpha=0.5)
 
     ##############
     # Follow the driving agent
